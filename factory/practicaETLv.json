@@ -1,0 +1,9 @@
+{
+	"name": "practicaETLv",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "66679945-c213-48e7-8878-01a9b3c2e03b",
+		"tenantId": "fd766edd-8bea-4c99-8672-56d1cabc2706"
+	}
+}
