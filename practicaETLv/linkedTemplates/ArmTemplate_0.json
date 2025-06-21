@@ -11,17 +11,21 @@
 			"type": "secureString",
 			"metadata": "Cadena protegida para \"connectionString\"de \"AzureBlobStorage1\""
 		},
-		"AzureBlobStorage_CONN_connectionString": {
+		"AzureBlobStorage2_connectionString": {
 			"type": "secureString",
-			"metadata": "Cadena protegida para \"connectionString\"de \"AzureBlobStorage_CONN\""
+			"metadata": "Cadena protegida para \"connectionString\"de \"AzureBlobStorage2\""
 		},
-		"ClientesPostgreSQL_connectionString": {
+		"MongoConn_connectionString": {
 			"type": "secureString",
-			"metadata": "Cadena protegida para \"connectionString\"de \"ClientesPostgreSQL\""
+			"metadata": "Cadena protegida para \"connectionString\"de \"MongoConn\""
 		},
 		"NeonConn_connectionString": {
 			"type": "secureString",
 			"metadata": "Cadena protegida para \"connectionString\"de \"NeonConn\""
+		},
+		"MongoConn_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "test"
 		}
 	},
 	"variables": {
@@ -42,28 +46,29 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/AzureBlobStorage_CONN')]",
+			"name": "[concat(parameters('factoryName'), '/AzureBlobStorage2')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"annotations": [],
 				"type": "AzureBlobStorage",
 				"typeProperties": {
-					"connectionString": "[parameters('AzureBlobStorage_CONN_connectionString')]"
+					"connectionString": "[parameters('AzureBlobStorage2_connectionString')]"
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ClientesPostgreSQL')]",
+			"name": "[concat(parameters('factoryName'), '/MongoConn')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"annotations": [],
-				"type": "AzurePostgreSql",
-				"version": "1.0",
+				"type": "MongoDbAtlas",
 				"typeProperties": {
-					"connectionString": "[parameters('ClientesPostgreSQL_connectionString')]"
+					"connectionString": "[parameters('MongoConn_connectionString')]",
+					"database": "[parameters('MongoConn_properties_typeProperties_database')]",
+					"driverVersion": "v2"
 				}
 			},
 			"dependsOn": []
@@ -81,6 +86,26 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Pool')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "MongoConn",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "MongoDbAtlasCollection",
+				"schema": [],
+				"typeProperties": {
+					"collection": "pool"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/MongoConn')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/amesdbtemp')]",
@@ -297,6 +322,192 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/bsmt')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "MongoConn",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "MongoDbAtlasCollection",
+				"schema": [],
+				"typeProperties": {
+					"collection": "bsmt"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/MongoConn')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/floordetail')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "NeonConn",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzurePostgreSqlTable",
+				"schema": [
+					{
+						"name": "pid",
+						"type": "bigint",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "Floor",
+						"type": "bigint",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "bedrooms",
+						"type": "bigint",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "Full Bath",
+						"type": "bigint",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "Half Bath",
+						"type": "bigint",
+						"precision": 0,
+						"scale": 0
+					}
+				],
+				"typeProperties": {
+					"schema": "public",
+					"table": "floordetail"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/NeonConn')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/garage')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "MongoConn",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "MongoDbAtlasCollection",
+				"schema": [],
+				"typeProperties": {
+					"collection": "garage"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/MongoConn')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/misc')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "MongoConn",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "MongoDbAtlasCollection",
+				"schema": [],
+				"typeProperties": {
+					"collection": "misc"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/MongoConn')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/mssubclass')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "NeonConn",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzurePostgreSqlTable",
+				"schema": [
+					{
+						"name": "description",
+						"type": "character varying",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "code",
+						"type": "bigint",
+						"precision": 0,
+						"scale": 0
+					}
+				],
+				"typeProperties": {
+					"schema": "public",
+					"table": "mssubclass"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/NeonConn')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/mszoning')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "NeonConn",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzurePostgreSqlTable",
+				"schema": [
+					{
+						"name": "id",
+						"type": "bigint",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "description",
+						"type": "character varying",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "code",
+						"type": "character varying",
+						"precision": 0,
+						"scale": 0
+					}
+				],
+				"typeProperties": {
+					"schema": "public",
+					"table": "mszoning"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/NeonConn')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/salesproperty')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -346,6 +557,911 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/NeonConn')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/typequality')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "NeonConn",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzurePostgreSqlTable",
+				"schema": [
+					{
+						"name": "id",
+						"type": "bigint",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "code",
+						"type": "character varying",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "description",
+						"type": "character varying",
+						"precision": 0,
+						"scale": 0
+					}
+				],
+				"typeProperties": {
+					"schema": "public",
+					"table": "typequality"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/NeonConn')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "AzureBlobStorage1",
+								"type": "LinkedServiceReference"
+							},
+							"name": "amesproperty"
+						},
+						{
+							"dataset": {
+								"referenceName": "amesdbtemp",
+								"type": "DatasetReference"
+							},
+							"name": "amesdbtemp"
+						},
+						{
+							"dataset": {
+								"referenceName": "floordetail",
+								"type": "DatasetReference"
+							},
+							"name": "floordetail"
+						},
+						{
+							"dataset": {
+								"referenceName": "mssubclass",
+								"type": "DatasetReference"
+							},
+							"name": "mssubclass"
+						},
+						{
+							"dataset": {
+								"referenceName": "mszoning",
+								"type": "DatasetReference"
+							},
+							"name": "mszoning"
+						},
+						{
+							"dataset": {
+								"referenceName": "salesproperty",
+								"type": "DatasetReference"
+							},
+							"name": "salesproperty"
+						},
+						{
+							"dataset": {
+								"referenceName": "typequality",
+								"type": "DatasetReference"
+							},
+							"name": "typequality"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "AzureBlobStorage2",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink1"
+						},
+						{
+							"linkedService": {
+								"referenceName": "AzureBlobStorage1",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink2"
+						},
+						{
+							"linkedService": {
+								"referenceName": "AzureBlobStorage1",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink3"
+						},
+						{
+							"linkedService": {
+								"referenceName": "AzureBlobStorage1",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink4"
+						},
+						{
+							"linkedService": {
+								"referenceName": "AzureBlobStorage1",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink5"
+						},
+						{
+							"linkedService": {
+								"referenceName": "AzureBlobStorage1",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink6"
+						},
+						{
+							"linkedService": {
+								"referenceName": "AzureBlobStorage1",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink7"
+						}
+					],
+					"transformations": [
+						{
+							"name": "ColumnaAnoMes"
+						},
+						{
+							"name": "amesproperty2"
+						},
+						{
+							"name": "Nulos"
+						},
+						{
+							"name": "amesdbtemp2"
+						},
+						{
+							"name": "Area"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "Salesproperty2"
+						},
+						{
+							"name": "floordetatil2"
+						},
+						{
+							"name": "floordetail3"
+						},
+						{
+							"name": "Sortfloordetail"
+						},
+						{
+							"name": "SortSales"
+						},
+						{
+							"name": "Sortmssubclassf"
+						},
+						{
+							"name": "Sortmszoningf"
+						},
+						{
+							"name": "SortPID"
+						},
+						{
+							"name": "Joinfloordetail"
+						},
+						{
+							"name": "JoinSales"
+						},
+						{
+							"name": "SortMssubclass"
+						},
+						{
+							"name": "JoinMssubclass"
+						},
+						{
+							"name": "SortMszoning"
+						},
+						{
+							"name": "JoinMsZoning"
+						},
+						{
+							"name": "Ordentype"
+						},
+						{
+							"name": "SortData"
+						},
+						{
+							"name": "SortExterCond"
+						},
+						{
+							"name": "JoinExterCond"
+						},
+						{
+							"name": "SelectExterCond"
+						},
+						{
+							"name": "SortExterQual"
+						},
+						{
+							"name": "JoinExterQual"
+						},
+						{
+							"name": "SelectExterQual"
+						},
+						{
+							"name": "SortHeatingQC"
+						},
+						{
+							"name": "JoinHeatingQC"
+						},
+						{
+							"name": "SelectHeatingQC"
+						},
+						{
+							"name": "SortKitchenQual"
+						},
+						{
+							"name": "JoinKitchenQual"
+						},
+						{
+							"name": "SelectKitchenQual"
+						},
+						{
+							"name": "SortPID2"
+						},
+						{
+							"name": "JoinAmes"
+						},
+						{
+							"name": "SortFinal"
+						},
+						{
+							"name": "select1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          PID as integer,",
+						"          {Lot Frontage} as short,",
+						"          {Lot Area} as integer,",
+						"          Street as string,",
+						"          Alley as string,",
+						"          {Lot Shape} as string,",
+						"          {Land Contour} as string,",
+						"          Utilities as string,",
+						"          {Lot Config} as string,",
+						"          {Land Slope} as string,",
+						"          Neighborhood as string,",
+						"          {Condition 1} as string,",
+						"          {Condition 2} as string,",
+						"          {Bldg Type} as string,",
+						"          {House Style} as string,",
+						"          {Overall Qual} as short,",
+						"          {Overall Cond} as short,",
+						"          {Year Built} as short,",
+						"          {Year Remod/Add} as short",
+						"     ),",
+						"     useSchema: false,",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: true,",
+						"     inferDriftedColumnTypes: true,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'delimited',",
+						"     container: 'archivosfinal',",
+						"     fileName: 'AmesProperty.csv',",
+						"     columnDelimiter: ';',",
+						"     escapeChar: '\\\\',",
+						"     quoteChar: '\\\"',",
+						"     columnNamesAsHeader: true) ~> amesproperty",
+						"source(output(",
+						"          {Exter Cond} as long,",
+						"          {Exter Qual} as long,",
+						"          {Heating QC} as long,",
+						"          {Kitchen Qual} as long,",
+						"          {MS Zoning} as long,",
+						"          pid as long,",
+						"          {Roof Style} as string,",
+						"          {Roof Matl} as string,",
+						"          {Exterior 1st} as string,",
+						"          {Exterior 2nd} as string,",
+						"          {Mas Vnr Type} as string,",
+						"          {Mas Vnr Area} as long,",
+						"          foundation as string,",
+						"          heating as string,",
+						"          {Central Air} as boolean,",
+						"          electrical as string,",
+						"          {1st Flr SF} as long,",
+						"          {2nd Flr SF} as long,",
+						"          {Low Qual Fin SF} as long,",
+						"          {Kitchen AbvGr} as long,",
+						"          {TotRms AbvGrd} as long,",
+						"          functional as string,",
+						"          fireplaces as long,",
+						"          {Fireplace Qu} as string,",
+						"          {Paved Drive} as string,",
+						"          {Wood Deck SF} as long,",
+						"          {Open Porch SF} as long,",
+						"          {Enclosed Porch} as long,",
+						"          {3Ssn Porch} as long,",
+						"          {Screen Porch} as long,",
+						"          fence as string,",
+						"          {MS SubClass} as long",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> amesdbtemp",
+						"source(output(",
+						"          pid as integer,",
+						"          Floor as integer,",
+						"          bedrooms as integer,",
+						"          {Full Bath} as integer,",
+						"          {Half Bath} as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> floordetail",
+						"source(output(",
+						"          description as string,",
+						"          code as long",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> mssubclass",
+						"source(output(",
+						"          id as long,",
+						"          description as string,",
+						"          code as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> mszoning",
+						"source(output(",
+						"          pid as long,",
+						"          {Sale Date} as timestamp,",
+						"          {Sale Type} as string,",
+						"          {Sale Condition} as string,",
+						"          saleprice as long",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> salesproperty",
+						"source(output(",
+						"          id as long,",
+						"          code as string,",
+						"          description as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> typequality",
+						"salesproperty derive({Yr sold} = year({Sale Date}),",
+						"          {Mo sold} = month({Sale Date})) ~> ColumnaAnoMes",
+						"amesproperty select(mapColumn(",
+						"          PID,",
+						"          Lot_Frontage = {Lot Frontage},",
+						"          Lot_Area = {Lot Area},",
+						"          Street,",
+						"          Alley,",
+						"          Lot_Shape = {Lot Shape},",
+						"          Land_Contour = {Land Contour},",
+						"          Utilities,",
+						"          Lot_Config = {Lot Config},",
+						"          Land_Slope = {Land Slope},",
+						"          Neighborhood,",
+						"          Condition_1 = {Condition 1},",
+						"          Condition_2 = {Condition 2},",
+						"          Bldg_Type = {Bldg Type},",
+						"          House_Style = {House Style},",
+						"          Overall_Qual = {Overall Qual},",
+						"          Overall_Cond = {Overall Cond},",
+						"          Year_Built = {Year Built},",
+						"          Year_Remod_Add = {Year Remod/Add}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> amesproperty2",
+						"amesproperty2 derive(Year_Remod_Add = iif(isNull(Year_Remod_Add), Year_Built, Year_Remod_Add)) ~> Nulos",
+						"derivedColumn1 select(mapColumn(",
+						"          Exter_Cond = {Exter Cond},",
+						"          Exter_Qual = {Exter Qual},",
+						"          Heating_QC = {Heating QC},",
+						"          Kitchen_Qual = {Kitchen Qual},",
+						"          MS_Zoning = {MS Zoning},",
+						"          PID = pid,",
+						"          Roof_Style = {Roof Style},",
+						"          Roof_Matl = {Roof Matl},",
+						"          Exterior_1st = {Exterior 1st},",
+						"          Exterior_2nd = {Exterior 2nd},",
+						"          Mas_Vnr_Type = {Mas Vnr Type},",
+						"          Mas_Vnr_Area = {Mas Vnr Area},",
+						"          foundation,",
+						"          heating,",
+						"          Central_Air = {Central Air},",
+						"          electrical,",
+						"          {1st_Flr_SF} = {1st Flr SF},",
+						"          {2nd_Flr_SF} = {2nd Flr SF},",
+						"          Low_Qual_Fin_SF = {Low Qual Fin SF},",
+						"          Kitchen_AbvGr = {Kitchen AbvGr},",
+						"          TotRms_AbvGrd = {TotRms AbvGrd},",
+						"          functional,",
+						"          fireplaces,",
+						"          Fireplace_Qu = {Fireplace Qu},",
+						"          Paved_Drive = {Paved Drive},",
+						"          Wood_Deck_SF = {Wood Deck SF},",
+						"          Open_Porch_SF = {Open Porch SF},",
+						"          Enclosed_Porch = {Enclosed Porch},",
+						"          {3Ssn_Porch} = {3Ssn Porch},",
+						"          Screen_Porch = {Screen Porch},",
+						"          fence,",
+						"          MS_SubClass = {MS SubClass}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> amesdbtemp2",
+						"amesdbtemp2 derive(Gr_Liv_Area = toInteger({1st_Flr_SF}) + toInteger({2nd_Flr_SF}) + toInteger(Low_Qual_Fin_SF)) ~> Area",
+						"amesdbtemp derive(pid = toInteger(pid)) ~> derivedColumn1",
+						"ColumnaAnoMes select(mapColumn(",
+						"          PID = pid,",
+						"          {Sale Date},",
+						"          {Sale Type},",
+						"          {Sale Condition},",
+						"          saleprice,",
+						"          {Yr sold},",
+						"          {Mo sold}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> Salesproperty2",
+						"floordetail select(mapColumn(",
+						"          PID = pid,",
+						"          Floor,",
+						"          bedrooms,",
+						"          Full_Bath = {Full Bath},",
+						"          Half_Bath = {Half Bath}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> floordetatil2",
+						"floordetatil2 aggregate(groupBy(PID),",
+						"     bedrooms = sum(bedrooms),",
+						"          {Full Bath} = sum(Full_Bath),",
+						"          Half_Bath = sum(Half_Bath)) ~> floordetail3",
+						"floordetail3 sort(asc(PID, true)) ~> Sortfloordetail",
+						"Salesproperty2 sort(asc(PID, true)) ~> SortSales",
+						"mssubclass sort(asc(code, true)) ~> Sortmssubclassf",
+						"mszoning sort(asc(code, true)) ~> Sortmszoningf",
+						"Area sort(asc(PID, true)) ~> SortPID",
+						"SortPID, Sortfloordetail join(amesdbtemp2@PID == floordetail3@PID,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> Joinfloordetail",
+						"Joinfloordetail, SortSales join(amesdbtemp2@PID == Salesproperty2@PID,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinSales",
+						"JoinSales sort(asc(MS_SubClass, true)) ~> SortMssubclass",
+						"SortMssubclass, Sortmssubclassf join(MS_SubClass == code,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinMssubclass",
+						"JoinMssubclass sort(asc(MS_Zoning, true)) ~> SortMszoning",
+						"SortMszoning, Sortmszoningf join(MS_Zoning == id,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinMsZoning",
+						"typequality sort(asc(id, true)) ~> Ordentype",
+						"JoinMsZoning select(mapColumn(",
+						"          PID = amesdbtemp2@PID,",
+						"          MS_SubClass,",
+						"          MS_Zoning = mszoning@code,",
+						"          Roof_Style,",
+						"          Roof_Matl,",
+						"          Exterior_1st,",
+						"          Exterior_2nd,",
+						"          Mas_Vnr_Type,",
+						"          Mas_Vnr_Area,",
+						"          Exter_Cond,",
+						"          Exter_Qual,",
+						"          electrical,",
+						"          foundation,",
+						"          heating,",
+						"          Heating_QC,",
+						"          Central_Air,",
+						"          {1st_Flr_SF},",
+						"          {2nd_Flr_SF},",
+						"          Low_Qual_Fin_SF,",
+						"          Gr_Liv_Area,",
+						"          {Full Bath},",
+						"          Half_Bath,",
+						"          bedrooms,",
+						"          Kitchen_AbvGr,",
+						"          Kitchen_Qual,",
+						"          TotRms_AbvGrd,",
+						"          functional,",
+						"          fireplaces,",
+						"          Fireplace_Qu,",
+						"          Paved_Drive,",
+						"          Wood_Deck_SF,",
+						"          Open_Porch_SF,",
+						"          Enclosed_Porch,",
+						"          {3Ssn_Porch},",
+						"          Screen_Porch,",
+						"          fence,",
+						"          {Yr sold},",
+						"          {Mo sold},",
+						"          {Sale Type},",
+						"          {Sale Condition},",
+						"          saleprice",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SortData",
+						"SortData sort(asc(Exter_Cond, true)) ~> SortExterCond",
+						"SortExterCond, Ordentype join(Exter_Cond == id,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinExterCond",
+						"JoinExterCond select(mapColumn(",
+						"          PID,",
+						"          MS_SubClass,",
+						"          MS_Zoning,",
+						"          Roof_Style,",
+						"          Roof_Matl,",
+						"          Exterior_1st,",
+						"          Exterior_2nd,",
+						"          Mas_Vnr_Type,",
+						"          Mas_Vnr_Area,",
+						"          Exter_Cond = code,",
+						"          Exter_Qual,",
+						"          electrical,",
+						"          foundation,",
+						"          heating,",
+						"          Heating_QC,",
+						"          Central_Air,",
+						"          {1st_Flr_SF},",
+						"          {2nd_Flr_SF},",
+						"          Low_Qual_Fin_SF,",
+						"          Gr_Liv_Area,",
+						"          {Full Bath},",
+						"          Half_Bath,",
+						"          bedrooms,",
+						"          Kitchen_AbvGr,",
+						"          Kitchen_Qual,",
+						"          TotRms_AbvGrd,",
+						"          functional,",
+						"          fireplaces,",
+						"          Fireplace_Qu,",
+						"          Paved_Drive,",
+						"          Wood_Deck_SF,",
+						"          Open_Porch_SF,",
+						"          Enclosed_Porch,",
+						"          {3Ssn_Porch},",
+						"          Screen_Porch,",
+						"          fence,",
+						"          {Yr sold},",
+						"          {Mo sold},",
+						"          {Sale Type},",
+						"          {Sale Condition},",
+						"          saleprice",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectExterCond",
+						"SelectExterCond sort(asc(Exter_Qual, true)) ~> SortExterQual",
+						"SortExterQual, Ordentype join(Exter_Qual == id,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinExterQual",
+						"JoinExterQual select(mapColumn(",
+						"          PID,",
+						"          MS_SubClass,",
+						"          MS_Zoning,",
+						"          Roof_Style,",
+						"          Roof_Matl,",
+						"          Exterior_1st,",
+						"          Exterior_2nd,",
+						"          Mas_Vnr_Type,",
+						"          Mas_Vnr_Area,",
+						"          Exter_Cond,",
+						"          Exter_Qual = code,",
+						"          electrical,",
+						"          foundation,",
+						"          heating,",
+						"          Heating_QC,",
+						"          Central_Air,",
+						"          {1st_Flr_SF},",
+						"          {2nd_Flr_SF},",
+						"          Low_Qual_Fin_SF,",
+						"          Gr_Liv_Area,",
+						"          {Full Bath},",
+						"          Half_Bath,",
+						"          bedrooms,",
+						"          Kitchen_AbvGr,",
+						"          Kitchen_Qual,",
+						"          TotRms_AbvGrd,",
+						"          functional,",
+						"          fireplaces,",
+						"          Fireplace_Qu,",
+						"          Paved_Drive,",
+						"          Wood_Deck_SF,",
+						"          Open_Porch_SF,",
+						"          Enclosed_Porch,",
+						"          {3Ssn_Porch},",
+						"          Screen_Porch,",
+						"          fence,",
+						"          {Yr sold},",
+						"          {Mo sold},",
+						"          {Sale Type},",
+						"          {Sale Condition},",
+						"          saleprice",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectExterQual",
+						"SelectExterQual sort(asc(Heating_QC, true)) ~> SortHeatingQC",
+						"SortHeatingQC, Ordentype join(Heating_QC == id,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinHeatingQC",
+						"JoinHeatingQC select(mapColumn(",
+						"          PID,",
+						"          MS_SubClass,",
+						"          MS_Zoning,",
+						"          Roof_Style,",
+						"          Roof_Matl,",
+						"          Exterior_1st,",
+						"          Exterior_2nd,",
+						"          Mas_Vnr_Type,",
+						"          Mas_Vnr_Area,",
+						"          Exter_Cond,",
+						"          Exter_Qual,",
+						"          electrical,",
+						"          foundation,",
+						"          heating,",
+						"          Heating_QC = code,",
+						"          Central_Air,",
+						"          {1st_Flr_SF},",
+						"          {2nd_Flr_SF},",
+						"          Low_Qual_Fin_SF,",
+						"          Gr_Liv_Area,",
+						"          {Full Bath},",
+						"          Half_Bath,",
+						"          bedrooms,",
+						"          Kitchen_AbvGr,",
+						"          Kitchen_Qual,",
+						"          TotRms_AbvGrd,",
+						"          functional,",
+						"          fireplaces,",
+						"          Fireplace_Qu,",
+						"          Paved_Drive,",
+						"          Wood_Deck_SF,",
+						"          Open_Porch_SF,",
+						"          Enclosed_Porch,",
+						"          {3Ssn_Porch},",
+						"          Screen_Porch,",
+						"          fence,",
+						"          {Yr sold},",
+						"          {Mo sold},",
+						"          {Sale Type},",
+						"          {Sale Condition},",
+						"          saleprice",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectHeatingQC",
+						"SelectHeatingQC sort(asc(Kitchen_Qual, true)) ~> SortKitchenQual",
+						"SortKitchenQual, Ordentype join(Kitchen_Qual == id,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinKitchenQual",
+						"JoinKitchenQual select(mapColumn(",
+						"          PID,",
+						"          MS_SubClass,",
+						"          MS_Zoning,",
+						"          Roof_Style,",
+						"          Roof_Matl,",
+						"          Exterior_1st,",
+						"          Exterior_2nd,",
+						"          Mas_Vnr_Type,",
+						"          Mas_Vnr_Area,",
+						"          Exter_Cond,",
+						"          Exter_Qual,",
+						"          electrical,",
+						"          foundation,",
+						"          heating,",
+						"          Heating_QC,",
+						"          Central_Air,",
+						"          {1st_Flr_SF},",
+						"          {2nd_Flr_SF},",
+						"          Low_Qual_Fin_SF,",
+						"          Gr_Liv_Area,",
+						"          {Full Bath},",
+						"          Half_Bath,",
+						"          bedrooms,",
+						"          Kitchen_AbvGr,",
+						"          Kitchen_Qual = code,",
+						"          TotRms_AbvGrd,",
+						"          functional,",
+						"          fireplaces,",
+						"          Fireplace_Qu,",
+						"          Paved_Drive,",
+						"          Wood_Deck_SF,",
+						"          Open_Porch_SF,",
+						"          Enclosed_Porch,",
+						"          {3Ssn_Porch},",
+						"          Screen_Porch,",
+						"          fence,",
+						"          {Yr sold},",
+						"          {Mo sold},",
+						"          {Sale Type},",
+						"          {Sale Condition},",
+						"          saleprice",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectKitchenQual",
+						"Nulos sort(asc(PID, true)) ~> SortPID2",
+						"SortPID2, SortFinal join(amesproperty2@PID == SelectKitchenQual@PID,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinAmes",
+						"SelectKitchenQual sort(asc(PID, true)) ~> SortFinal",
+						"JoinAmes select(mapColumn(",
+						"          PID = amesproperty2@PID,",
+						"          MS_SubClass,",
+						"          MS_Zoning,",
+						"          Lot_Frontage,",
+						"          Lot_Area,",
+						"          Street,",
+						"          Alley,",
+						"          Lot_Shape,",
+						"          Land_Contour,",
+						"          Utilities,",
+						"          Lot_Config,",
+						"          Land_Slope,",
+						"          Neighborhood,",
+						"          Condition_1,",
+						"          Condition_2,",
+						"          Bldg_Type,",
+						"          House_Style,",
+						"          Overall_Qual,",
+						"          Overall_Cond,",
+						"          Year_Built,",
+						"          Year_Remod_Add,",
+						"          Roof_Style,",
+						"          Roof_Matl,",
+						"          Exterior_1st,",
+						"          Exterior_2nd,",
+						"          Mas_Vnr_Type,",
+						"          Mas_Vnr_Area,",
+						"          Exter_Cond,",
+						"          Exter_Qual,",
+						"          electrical,",
+						"          foundation,",
+						"          heating,",
+						"          Heating_QC,",
+						"          Central_Air,",
+						"          {1st_Flr_SF},",
+						"          {2nd_Flr_SF},",
+						"          Low_Qual_Fin_SF,",
+						"          Gr_Liv_Area,",
+						"          {Full Bath},",
+						"          Half_Bath,",
+						"          bedrooms,",
+						"          Kitchen_AbvGr,",
+						"          Kitchen_Qual,",
+						"          TotRms_AbvGrd,",
+						"          functional,",
+						"          fireplaces,",
+						"          Fireplace_Qu,",
+						"          Paved_Drive,",
+						"          Wood_Deck_SF,",
+						"          Open_Porch_SF,",
+						"          Enclosed_Porch,",
+						"          {3Ssn_Porch},",
+						"          Screen_Porch,",
+						"          fence,",
+						"          {Yr sold},",
+						"          {Mo sold},",
+						"          {Sale Type},",
+						"          {Sale Condition},",
+						"          saleprice",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'delimited',",
+						"     container: 'adls-container',",
+						"     folderPath: 'out_data',",
+						"     columnDelimiter: ',',",
+						"     escapeChar: '\\\\',",
+						"     quoteChar: '\\\"',",
+						"     columnNamesAsHeader: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink1",
+						"SortFinal sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'delimited',",
+						"     container: 'archivosfinal',",
+						"     columnDelimiter: ',',",
+						"     escapeChar: '\\\\',",
+						"     quoteChar: '\\\"',",
+						"     columnNamesAsHeader: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink2",
+						"Sortfloordetail sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'delimited',",
+						"     container: 'archivosfinal',",
+						"     columnDelimiter: ',',",
+						"     escapeChar: '\\\\',",
+						"     quoteChar: '\\\"',",
+						"     columnNamesAsHeader: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink3",
+						"Sortmssubclassf sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'delimited',",
+						"     container: 'archivosfinal',",
+						"     columnDelimiter: ',',",
+						"     escapeChar: '\\\\',",
+						"     quoteChar: '\\\"',",
+						"     columnNamesAsHeader: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink4",
+						"Sortmszoningf sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'delimited',",
+						"     container: 'archivosfinal',",
+						"     columnDelimiter: ',',",
+						"     escapeChar: '\\\\',",
+						"     quoteChar: '\\\"',",
+						"     columnNamesAsHeader: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink5",
+						"SortSales sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'delimited',",
+						"     container: 'archivosfinal',",
+						"     columnDelimiter: ',',",
+						"     escapeChar: '\\\\',",
+						"     quoteChar: '\\\"',",
+						"     columnNamesAsHeader: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink6",
+						"Ordentype sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'delimited',",
+						"     container: 'archivosfinal',",
+						"     columnDelimiter: ',',",
+						"     escapeChar: '\\\\',",
+						"     quoteChar: '\\\"',",
+						"     columnNamesAsHeader: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink7"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]",
+				"[concat(variables('factoryId'), '/datasets/amesdbtemp')]",
+				"[concat(variables('factoryId'), '/datasets/floordetail')]",
+				"[concat(variables('factoryId'), '/datasets/mssubclass')]",
+				"[concat(variables('factoryId'), '/datasets/mszoning')]",
+				"[concat(variables('factoryId'), '/datasets/salesproperty')]",
+				"[concat(variables('factoryId'), '/datasets/typequality')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage2')]"
 			]
 		}
 	]
